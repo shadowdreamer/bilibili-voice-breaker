@@ -1,0 +1,11 @@
+node_modules/
+.wxt/
+.output/
+test-results/
+playwright-report/
+*.local
+__pycache__/
+*.pyc
+*.pem
+.DS_Store
+Thumbs.db

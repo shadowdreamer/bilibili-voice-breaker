@@ -1,0 +1,29 @@
+@import '../../lib/ui.css';
+body { width: 380px; max-height: 600px; overflow-y: auto; padding: 10px; }
+.panel { border: 1px solid var(--border); border-radius: 16px; padding: 14px 12px 8px; }
+.panel-header, .brand, .row, .enable-row, .manage-button { display: flex; align-items: center; justify-content: space-between; }
+.panel-header { padding-bottom: 20px; border-bottom: 1px solid var(--border); gap: 8px; }
+.brand { gap: 7px; justify-content: flex-start; }
+h1 { font-size: 13px; font-weight: 600; margin: 0; }
+.brand img { flex-shrink: 0; object-fit: contain; }
+h2 { font-size: 14px; margin: 0; font-weight: 600; }
+.current { padding: 22px 0 21px; border-bottom: 1px solid var(--border); }
+#creator-name { font-size: 13px; margin: 9px 0 3px; overflow-wrap: anywhere; }
+.secondary { font-size: 12px; color: var(--muted); line-height: 1.6; margin: 0; overflow-wrap: anywhere; }
+.primary { width: 100%; margin-top: 14px; min-height: 37px; border-radius: 999px; font-size: 13px; }
+.primary:disabled { opacity: .58; }
+.volumes { padding: 21px 0 18px; }
+.volumes label { font-weight: 600; font-size: 14px; }
+output { color: var(--muted); font-size: 13px; font-weight: 400; font-variant-numeric: tabular-nums; }
+input[type="range"] { appearance: none; display: block; width: 100%; height: 23px; border-radius: 99px; background: var(--surface); margin: 15px 0 16px; cursor: pointer; }
+input[type="range"]::-webkit-slider-thumb { appearance: none; width: 21px; height: 21px; background: white; border: 1px solid #dedee0; border-radius: 50%; box-shadow: 0 1px 2px #0000000a; }
+input[type="range"]::-moz-range-thumb { width: 21px; height: 21px; background: white; border: 1px solid #dedee0; border-radius: 50%; }
+.enable-row { margin-top: 6px; cursor: pointer; min-height: 26px; }
+#enabled { appearance: none; width: 20px; height: 20px; margin: 0; border: 1px solid #d8d8da; border-radius: 50%; display: grid; place-content: center; cursor: pointer; }
+#enabled:checked { background: var(--ink); border-color: var(--ink); }
+#enabled:checked::after { content: ''; width: 8px; height: 4px; border-left: 2px solid white; border-bottom: 2px solid white; transform: translateY(-1px) rotate(-45deg); }
+footer { border-top: 1px solid var(--border); }
+.manage-button { width: 100%; background: none; padding: 14px 0 7px; color: var(--muted); font-size: 12px; text-align: left; }
+.manage-button:hover { color: var(--ink); }
+#count { margin-left: 5px; font-variant-numeric: tabular-nums; }
+#feedback:not(:empty) { margin: 7px 0 4px; }

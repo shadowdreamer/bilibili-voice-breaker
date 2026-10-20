@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>B站UP音量白名单</title>
+    <link rel="icon" type="image/png" href="/icons/icon-32.png" />
+  </head>
+  <body>
+    <main class="panel">
+      <header class="panel-header">
+        <div class="brand">
+          <img src="/icons/icon-48.png" width="24" height="24" alt="" />
+          <h1>B站UP音量白名单</h1>
+        </div>
+        <span id="enabled-state" class="badge" data-state="enabled">读取中</span>
+      </header>
+      <section class="current" aria-labelledby="current-heading">
+        <div class="row"><h2 id="current-heading">当前 UP 主</h2><span id="badge" class="badge">等待视频</span></div>
+        <p id="creator-name">打开一个 B 站视频</p>
+        <p id="page-detail" class="secondary">在普通视频页添加当前 UP 主。</p>
+        <button id="add-current" class="primary" type="button" disabled>＋ 加入白名单</button>
+      </section>
+      <section class="volumes" aria-label="播放音量">
+        <label class="row" for="normal-volume"><span>白名单音量</span><output id="normal-value" for="normal-volume">70%</output></label>
+        <input id="normal-volume" type="range" min="0" max="100" value="70" disabled />
+        <label class="row" for="quiet-volume"><span>非白名单音量</span><output id="quiet-value" for="quiet-volume">1%</output></label>
+        <input id="quiet-volume" type="range" min="0" max="100" value="1" disabled />
+        <label class="enable-row" for="enabled"><span>启用自动音量控制</span><input id="enabled" type="checkbox" disabled /></label>
+      </section>
+      <footer><button id="manage-whitelist" class="manage-button" type="button"><span>管理白名单 <span id="count">0</span></span><span aria-hidden="true">↗</span></button></footer>
+      <p id="feedback" role="status" aria-live="polite"></p>
+    </main>
+    <script type="module" src="./main.ts"></script>
+  </body>
+</html>
