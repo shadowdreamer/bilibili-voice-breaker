@@ -1,0 +1,72 @@
+name: Release
+
+on:
+  push:
+    tags: ['v*']
+
+permissions:
+  contents: read
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  release:
+    name: Verify and publish extension
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7
+        with:
+          node-version: '22'
+          package-manager-cache: false
+      - name: Check tag matches package version
+        env:
+          RELEASE_TAG: ${{ github.ref_name }}
+        run: |
+          node --input-type=module <<'NODE'
+          import { readFileSync } from 'node:fs';
+          const { version } = JSON.parse(readFileSync('package.json', 'utf8'));
+          if (process.env.RELEASE_TAG !== `v${version}`) {
+            throw new Error(`Tag must be v${version}, got ${process.env.RELEASE_TAG}`);
+          }
+          NODE
+      - run: npm ci
+      - run: npm run check
+      - name: Install test browser
+        run: npx playwright install --with-deps chromium
+      - name: Browser integration tests
+        run: npm run test:e2e
+      - run: npm run zip
+      - name: Verify package and generate SHA-256 checksum
+        env:
+          RELEASE_TAG: ${{ github.ref_name }}
+        run: python3 scripts/verify-release.py
+      - name: Publish release with installation package
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          RELEASE_TAG: ${{ github.ref_name }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          version="${RELEASE_TAG#v}"
+          package=".output/bilibili-voice-breaker-${version}-chrome.zip"
+          notes="docs/releases/${RELEASE_TAG}.md"
+          args=("$RELEASE_TAG" "$package" "$package.sha256" --verify-tag
+                --title "B站UP音量白名单 ${RELEASE_TAG}" --draft)
+          if [[ -f "$notes" ]]; then
+            args+=(--notes-file "$notes")
+          else
+            args+=(--generate-notes)
+          fi
+          # Publish only after both assets have uploaded successfully.
+          gh release create "${args[@]}"
+          gh release edit "$RELEASE_TAG" --draft=false --latest
+

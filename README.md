@@ -21,7 +21,7 @@
 
 ### 使用发布包
 
-下载项目 Releases 中的扩展 ZIP（文件名包含 `chrome`，Chrome 和 Edge 共用），**先解压**到一个固定文件夹。请勿使用 GitHub 自动生成的 Source code ZIP 作为扩展安装包。
+从 [Releases](https://github.com/shadowdreamer/bilibili-voice-breaker/releases/latest) 下载扩展 ZIP（文件名包含 `chrome`，Chrome 和 Edge 共用），**先解压**到一个固定文件夹。请勿使用 GitHub 自动生成的 Source code ZIP 作为扩展安装包。
 
 1. Chrome 打开 `chrome://extensions`，Edge 打开 `edge://extensions`。
 2. 开启「开发者模式」，点击「加载已解压的扩展程序」。
@@ -52,6 +52,8 @@ npm run zip        # 生成发布用扩展 ZIP
 ```
 
 发布包位于 `.output/bilibili-voice-breaker-<版本>-chrome.zip`，仅包含扩展运行文件。源码、测试、截图、图标原稿和依赖目录不会进入安装包。
+
+GitHub Actions 会在提交和 PR 时执行类型检查、策略测试、生产构建与浏览器集成测试。发布新版本时，先同步修改 `package.json` 与 `package-lock.json` 的版本并提交，再推送对应的 `v<版本>` 标签；Release 工作流会重新验证、打包、生成 SHA-256 校验文件并发布。标签必须与包版本一致。可在 `docs/releases/v<版本>.md` 提供发布说明，未提供时自动生成。
 
 开源仓库发布源码，并将上述 ZIP 作为 Release 附件即可；无需额外生成 `.crx`。若要让用户从商店直接安装并自动更新，需另行提交 Chrome Web Store / Edge Add-ons。两者接收 ZIP，`manifest.json` 必须在压缩包根目录。[Chrome 发布说明](https://developer.chrome.com/docs/webstore/prepare)、[Edge 发布说明](https://learn.microsoft.com/en-us/microsoft-edge/extensions/publish/publish-extension)。普通 Windows / macOS 用户不能仅凭自签名 CRX 获得 Chrome 的常规直接安装体验，参见 [Chrome 分发说明](https://developer.chrome.com/docs/extensions/how-to/distribute)。
 
