@@ -21,10 +21,20 @@
         <p id="feedback" role="status" aria-live="polite"></p>
       </section>
       <section class="list-card" aria-labelledby="list-heading">
+        <div class="backup-toolbar">
+          <button id="export-whitelist" type="button" disabled>导出白名单</button>
+          <label for="import-mode">导入方式</label>
+          <select id="import-mode" disabled><option value="merge">合并（保留现有备注）</option><option value="replace">替换全部白名单</option></select>
+          <button id="choose-import" type="button" disabled>选择文件</button>
+          <input id="import-file" type="file" accept=".json,application/json" hidden />
+          <span id="import-preview">JSON 文件，仅导入白名单，不改变音量设置。</span>
+          <button id="confirm-import" type="button" disabled>确认导入</button>
+        </div>
         <div class="list-toolbar"><h2 id="list-heading">全部 UP 主</h2><label class="search"><span class="sr-only">搜索白名单</span><input id="search" type="search" placeholder="搜索名称或 UID" /></label></div>
         <div class="table-heading" aria-hidden="true"><span>UP 主</span><span>UID</span><span>操作</span></div>
         <ul id="creator-list" aria-label="白名单 UP 主"></ul>
         <div id="empty" class="empty"><p id="empty-title">白名单还是空的</p><p id="empty-detail">在上方添加 UP 主，或在视频弹窗中一键加入。</p></div>
+        <nav class="pagination" aria-label="白名单分页"><span id="page-info" role="status"></span><div><button id="previous-page" type="button" disabled>上一页</button><button id="next-page" type="button" disabled>下一页</button></div></nav>
       </section>
     </main>
     <script type="module" src="./main.ts"></script>

@@ -28,10 +28,10 @@ input::placeholder { color: #a0a0a5; }
 .table-heading, li { display: grid; grid-template-columns: minmax(0, 1fr) 155px 50px; gap: 20px; align-items: center; }
 .table-heading { font-size: 11px; color: #8c8c93; background: #fafafa; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); padding: 12px 24px; }
 ul { margin: 0; padding: 0; list-style: none; }
-li { padding: 18px 24px; border-bottom: 1px solid var(--border); }
+li { padding: 7px 24px; border-bottom: 1px solid var(--border); }
 li:last-child { border-bottom: 0; }
 .identity { display: flex; gap: 12px; align-items: center; min-width: 0; }
-.avatar { display: grid; place-items: center; width: 36px; height: 36px; background: #f2f2f3; border: 1px solid #eaeaec; border-radius: 50%; color: #66666e; flex-shrink: 0; font-size: 12px; }
+.avatar { display: grid; place-items: center; width: 26px; height: 26px; background: #f2f2f3; border: 1px solid #eaeaec; border-radius: 50%; color: #66666e; flex-shrink: 0; font-size: 11px; }
 li a { color: #292a2e; text-decoration: none; font-size: 13px; overflow-wrap: anywhere; }
 li a:hover { text-decoration: underline; }
 li small { display: none; color: var(--muted); font-size: 11px; margin-top: 5px; }
@@ -41,6 +41,12 @@ li small { display: none; color: var(--muted); font-size: 11px; margin-top: 5px;
 .empty { padding: 52px 24px; text-align: center; }
 .empty p { color: #66666d; margin: 0; font-size: 13px; }
 .empty p + p { color: #99999e; font-size: 12px; margin-top: 10px; line-height: 1.7; }
+.backup-toolbar { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; padding: 16px 24px; border-bottom: 1px solid var(--border); font-size: 12px; }
+.backup-toolbar button, .pagination button { background: #f3f3f4; color: var(--ink); border-radius: 7px; padding: 8px 12px; font-size: 12px; }
+.backup-toolbar select { max-width: 100%; background: white; border: 1px solid var(--border); border-radius: 7px; padding: 7px; font: inherit; }
+#import-preview { flex-basis: 100%; color: var(--muted); line-height: 1.7; }
+.pagination { border-top: 1px solid var(--border); padding: 14px 24px; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; font-size: 12px; color: var(--muted); }
+.pagination div { display: flex; gap: 8px; }
 @media (max-width: 700px) {
   .header-inner { padding: 18px 20px; }
   main { padding: 30px 20px; }

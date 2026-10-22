@@ -25,8 +25,8 @@ function renderStatus() {
   const state = el('enabled-state');
   state.textContent = !ready ? '读取中' : settings.enabled ? '已启用' : '已暂停';
   state.dataset.state = ready && settings.enabled ? 'enabled' : 'neutral';
-  addCurrent.disabled = !ready || busy || !creator || allowed;
-  addCurrent.textContent = allowed ? '✓ 已加入白名单' : '＋ 加入白名单';
+  addCurrent.disabled = !ready || busy || !creator;
+  addCurrent.textContent = allowed ? '− 移除白名单' : '＋ 加入白名单';
 }
 function render() {
   const { settings, ready, busy } = ui;
@@ -48,7 +48,11 @@ for (const input of [normal, quiet]) {
   input.addEventListener('change', () => void ui.update({ type: 'set-volumes', normalVolume: Number(normal.value) / 100, quietVolume: Number(quiet.value) / 100 }));
 }
 addCurrent.addEventListener('click', () => {
-  if (status?.creator) void ui.update({ type: 'add-creator', creator: status.creator }, '已加入白名单');
+  const creator = status?.creator;
+  if (!creator) return;
+  const allowed = ui.settings.whitelist.some(item => item.uid === creator.uid);
+  if (allowed) void ui.update({ type: 'remove-creator', uid: creator.uid }, '已移除白名单');
+  else void ui.update({ type: 'add-creator', creator }, '已加入白名单');
 });
 el('manage-whitelist').addEventListener('click', async () => {
   try { await browser.runtime.openOptionsPage(); }
