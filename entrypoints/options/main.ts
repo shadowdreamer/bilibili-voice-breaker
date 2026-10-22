@@ -1,5 +1,5 @@
 import { createSettingsUi } from '../../lib/settings-ui';
-import { parseUid, parseWhitelistBackup, type Creator } from '../../lib/settings';
+import { parseUid, parseWhitelistBackup, type WhitelistCreator } from '../../lib/settings';
 import './style.css';
 
 const el = <T extends HTMLElement>(id: string) => document.getElementById(id) as T;
@@ -11,7 +11,7 @@ const importMode = el<HTMLSelectElement>('import-mode');
 const importFile = el<HTMLInputElement>('import-file');
 const PAGE_SIZE = 50;
 let page = 1;
-let pendingImport: Creator[] | null = null;
+let pendingImport: WhitelistCreator[] | null = null;
 let readingFile = false;
 
 function render() {
@@ -48,6 +48,11 @@ function render() {
     mobileUid.textContent = `UID ${creator.uid}`;
     link.append(mobileUid);
     identity.append(avatar, link);
+    const savedVolume = document.createElement('span');
+    savedVolume.className = 'saved-volume';
+    savedVolume.textContent = `${Math.round((creator.volume ?? .7) * 100)}%`;
+    savedVolume.title = '该 UP 主的记忆音量';
+    identity.append(savedVolume);
     const uid = document.createElement('span');
     uid.className = 'uid-column';
     uid.textContent = creator.uid;
@@ -115,7 +120,7 @@ el('confirm-import').addEventListener('click', async () => {
     pendingImport = null;
     page = 1;
     search.value = '';
-    el('import-preview').textContent = '导入完成。JSON 文件仅包含白名单。';
+    el('import-preview').textContent = '导入完成，成员音量随白名单保存。';
     render();
   }
 });

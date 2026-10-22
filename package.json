@@ -1,7 +1,7 @@
 {
   "name": "bilibili-voice-breaker",
   "description": "只让白名单 UP 主以正常音量播放的 B 站 Chrome 扩展",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "private": true,
   "license": "MIT",
   "type": "module",

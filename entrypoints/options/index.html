@@ -10,7 +10,7 @@
   <body>
     <header class="site-header"><div class="header-inner"><a href="./options.html" class="brand"><img src="/icons/icon-48.png" width="28" height="28" alt="" />B站UP音量白名单</a><span class="badge">本机保存</span></div></header>
     <main>
-      <div class="page-heading"><div><h1>白名单管理</h1><p>白名单中的 UP 主，将使用你设定的白名单音量。</p></div><span class="total">共 <strong id="count">0</strong> 位 UP 主</span></div>
+      <div class="page-heading"><div><h1>白名单管理</h1><p>每位 UP 主独立记忆音量，默认 70%，可在视频播放器或扩展弹窗中调整。</p></div><span class="total">共 <strong id="count">0</strong> 位 UP 主</span></div>
       <section class="add-card" aria-labelledby="add-heading">
         <h2 id="add-heading">添加 UP 主</h2>
         <form id="add-form">
@@ -24,10 +24,10 @@
         <div class="backup-toolbar">
           <button id="export-whitelist" type="button" disabled>导出白名单</button>
           <label for="import-mode">导入方式</label>
-          <select id="import-mode" disabled><option value="merge">合并（保留现有备注）</option><option value="replace">替换全部白名单</option></select>
+          <select id="import-mode" disabled><option value="merge">合并（保留备注与音量）</option><option value="replace">替换全部白名单</option></select>
           <button id="choose-import" type="button" disabled>选择文件</button>
           <input id="import-file" type="file" accept=".json,application/json" hidden />
-          <span id="import-preview">JSON 文件，仅导入白名单，不改变音量设置。</span>
+          <span id="import-preview">JSON 文件，包含成员音量，不改变非白名单音量和开关。</span>
           <button id="confirm-import" type="button" disabled>确认导入</button>
         </div>
         <div class="list-toolbar"><h2 id="list-heading">全部 UP 主</h2><label class="search"><span class="sr-only">搜索白名单</span><input id="search" type="search" placeholder="搜索名称或 UID" /></label></div>

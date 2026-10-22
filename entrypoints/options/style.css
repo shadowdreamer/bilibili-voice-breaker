@@ -31,6 +31,7 @@ ul { margin: 0; padding: 0; list-style: none; }
 li { padding: 7px 24px; border-bottom: 1px solid var(--border); }
 li:last-child { border-bottom: 0; }
 .identity { display: flex; gap: 12px; align-items: center; min-width: 0; }
+.saved-volume { flex-shrink: 0; color: var(--muted); font-size: 11px; font-variant-numeric: tabular-nums; }
 .avatar { display: grid; place-items: center; width: 26px; height: 26px; background: #f2f2f3; border: 1px solid #eaeaec; border-radius: 50%; color: #66666e; flex-shrink: 0; font-size: 11px; }
 li a { color: #292a2e; text-decoration: none; font-size: 13px; overflow-wrap: anywhere; }
 li a:hover { text-decoration: underline; }

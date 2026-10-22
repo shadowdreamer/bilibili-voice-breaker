@@ -2,8 +2,10 @@ import type { Creator, Settings, SettingsAction } from './settings';
 export type BackgroundRequest =
   | { type: 'get-settings' }
   | { type: 'update-settings'; action: SettingsAction }
+  | { type: 'record-creator-volume'; uid: string; volume: number; videoKey: string }
   | { type: 'resolve-creator'; url: string };
 export interface PageStatus {
+  videoKey: string | null;
   supported: boolean;
   creator: Creator | null;
   resolving: boolean;

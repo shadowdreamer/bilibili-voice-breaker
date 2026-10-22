@@ -14,7 +14,11 @@ let status: PageStatus | null = null;
 function renderStatus() {
   const { settings, ready, busy } = ui;
   const creator = status?.creator;
-  const allowed = !!creator && settings.whitelist.some(item => item.uid === creator.uid);
+  const entry = creator ? settings.whitelist.find(item => item.uid === creator.uid) : undefined;
+  const allowed = !!entry;
+  normal.disabled = !ready || busy || !allowed;
+  normal.value = String(Math.round((entry?.volume ?? .7) * 100));
+  el('normal-value').textContent = `${normal.value}%`;
   el('creator-name').textContent = creator?.name || (status?.supported ? '正在识别 UP 主…' : '打开一个 B 站视频');
   el('page-detail').textContent = status?.supported
     ? status.error || (creator ? `UID ${creator.uid}` : '识别期间保持非白名单音量。')
@@ -31,7 +35,6 @@ function renderStatus() {
 function render() {
   const { settings, ready, busy } = ui;
   enabled.checked = settings.enabled;
-  normal.value = String(Math.round(settings.normalVolume * 100));
   quiet.value = String(Math.round(settings.quietVolume * 100));
   for (const input of [enabled, normal, quiet]) input.disabled = !ready || busy;
   el('normal-value').textContent = `${normal.value}%`;
@@ -40,13 +43,11 @@ function render() {
   renderStatus();
 }
 enabled.addEventListener('change', () => void ui.update({ type: 'set-enabled', enabled: enabled.checked }));
-for (const input of [normal, quiet]) {
-  input.addEventListener('input', () => {
-    el('normal-value').textContent = `${normal.value}%`;
-    el('quiet-value').textContent = `${quiet.value}%`;
-  });
-  input.addEventListener('change', () => void ui.update({ type: 'set-volumes', normalVolume: Number(normal.value) / 100, quietVolume: Number(quiet.value) / 100 }));
-}
+normal.addEventListener('input', () => {
+  const uid = status?.creator?.uid;
+  if (uid && ui.settings.whitelist.some(item => item.uid === uid)) ui.updateLive({ type: 'set-creator-volume', uid, volume: Number(normal.value) / 100 });
+});
+quiet.addEventListener('input', () => ui.updateLive({ type: 'set-quiet-volume', volume: Number(quiet.value) / 100 }));
 addCurrent.addEventListener('click', () => {
   const creator = status?.creator;
   if (!creator) return;

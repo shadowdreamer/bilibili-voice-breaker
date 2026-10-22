@@ -87,7 +87,7 @@ test('白名单、设置持久化、播放器改音量与暂停恢复', async ({
   await popup.locator('#add-current').click();
   await expect.poll(volume).toBe(.7);
   await videoPage.locator('video').evaluate((media: HTMLVideoElement) => { media.volume = 1; media.muted = true; });
-  await expect.poll(volume).toBe(.7);
+  await expect(popup.locator('#normal-value')).toHaveText('100%');
   expect(await videoPage.locator('video').evaluate((media: HTMLVideoElement) => media.muted)).toBe(true);
   await popup.reload();
   await expect(popup.locator('#count')).toHaveText('1');
@@ -103,7 +103,7 @@ test('白名单、设置持久化、播放器改音量与暂停恢复', async ({
     expect(await volume()).toBe(.55);
   }).toPass();
   await popup.locator('#enabled').check();
-  await expect.poll(volume).toBe(.7);
+  await expect.poll(volume).toBe(1);
   const manager = await openManager();
   await expect(manager.locator('#count')).toHaveText('1');
   await manager.getByRole('button', { name: '移除 喜欢的 UP 主' }).click();
@@ -157,6 +157,8 @@ test('API 失败仍压低，零音量与非法输入正常处理', async () => {
   await expect.poll(volume).toBe(.01);
   await activateVideo();
   await expect(popup.locator('#page-detail')).toContainText('暂时无法识别');
+  await videoPage.locator('video').evaluate((media: HTMLVideoElement) => { media.volume = .9; });
+  await expect.poll(volume).toBe(.01);
   await popup.locator('#quiet-volume').fill('0');
   await popup.locator('#quiet-volume').dispatchEvent('change');
   await expect.poll(volume).toBe(0);
@@ -235,7 +237,7 @@ test('白名单备份、合并替换、分页与无效文件保护', async () =>
   const chunks: Buffer[] = [];
   for await (const chunk of stream!) chunks.push(Buffer.from(chunk));
   const backup = JSON.parse(Buffer.concat(chunks).toString());
-  expect(backup.whitelist).toEqual(creators);
+  expect(backup.whitelist).toEqual(creators.map(item => ({ ...item, volume: .7 })));
   expect(backup.normalVolume).toBeUndefined();
   await upload([{ uid: '1', name: '覆盖备注' }, { uid: '102', name: '<img src=x onerror=alert(1)>' }]);
   await manager.locator('#confirm-import').click();
@@ -259,4 +261,70 @@ test('白名单备份、合并替换、分页与无效文件保护', async () =>
   await manager.locator('#confirm-import').click();
   await expect(manager.locator('#count')).toHaveText('0');
   await expect.poll(volume).toBe(.01);
+});
+
+test('UP 主独立记忆、网页双向同步、拖动实时生效与导航重置', async () => {
+  await activateVideo();
+  await expect(popup.locator('#creator-name')).toHaveText('喜欢的 UP 主');
+  await expect(popup.locator('#normal-volume')).toBeDisabled();
+  await popup.locator('#add-current').click();
+  await expect.poll(volume).toBe(.7);
+  await videoPage.locator('video').evaluate((media: HTMLVideoElement) => { media.volume = .34; });
+  await expect(popup.locator('#normal-value')).toHaveText('34%');
+  await popup.locator('#normal-volume').evaluate((input: HTMLInputElement) => {
+    for (const value of ['20', '40', '62']) { input.value = value; input.dispatchEvent(new Event('input', { bubbles: true })); }
+  });
+  await expect.poll(volume).toBe(.62); // No change event / pointer release is needed.
+  await expect(popup.locator('#normal-value')).toHaveText('62%');
+  await videoPage.reload();
+  await expect.poll(volume).toBe(.62);
+  await videoPage.locator('video').evaluate((media: HTMLVideoElement) => { media.muted = true; });
+  await expect(popup.locator('#normal-value')).toHaveText('62%');
+  await videoPage.evaluate(id => history.pushState({}, '', `/video/${id}/`), SECOND);
+  await expect.poll(volume).toBe(.01);
+  await expect(popup.locator('#creator-name')).toHaveText('其他 UP 主');
+  await expect(popup.locator('#normal-volume')).toBeDisabled();
+  await videoPage.locator('video').evaluate((media: HTMLVideoElement) => { media.volume = .45; });
+  // Repeated scans/status queries and unrelated whitelist updates must not undo free adjustment.
+  await expect(popup.locator('#quiet-value')).toHaveText('1%');
+  await popup.evaluate(async () => {
+    await (globalThis as any).chrome.runtime.sendMessage({ type: 'update-settings', action: { type: 'set-creator-volume', uid: '123', volume: .63 } });
+  });
+  await expect(async () => {
+    await new Promise(resolve => setTimeout(resolve, 650));
+    expect(await volume()).toBe(.45);
+  }).toPass();
+  await popup.locator('#quiet-volume').evaluate((input: HTMLInputElement) => {
+    input.value = '12'; input.dispatchEvent(new Event('input', { bubbles: true }));
+  });
+  await expect.poll(volume).toBe(.12);
+  await videoPage.locator('video').evaluate((media: HTMLVideoElement) => { media.volume = .51; });
+  await videoPage.evaluate(() => history.pushState({}, '', '/video/BV1zz411c7mD/'));
+  await expect.poll(volume).toBe(.12);
+  await expect(popup.locator('#creator-name')).toHaveText('其他 UP 主');
+  await popup.locator('#add-current').click();
+  await expect.poll(volume).toBe(.7);
+  await videoPage.locator('video').evaluate((media: HTMLVideoElement) => { media.volume = .28; });
+  await expect(popup.locator('#normal-value')).toHaveText('28%');
+  await videoPage.evaluate(id => history.pushState({}, '', `/video/${id}/`), FIRST);
+  await expect.poll(volume).toBe(.63);
+  await expect(popup.locator('#normal-value')).toHaveText('63%');
+  await videoPage.evaluate(id => history.pushState({}, '', `/video/${id}/`), SECOND);
+  await expect.poll(volume).toBe(.28);
+  await expect(popup.locator('#normal-value')).toHaveText('28%');
+  expect(await videoPage.locator('video').evaluate((media: HTMLVideoElement) => media.muted)).toBe(true);
+  const other = await context.newPage();
+  await other.goto(`https://www.bilibili.com/video/${SECOND}/`);
+  await expect.poll(() => other.locator('video').evaluate((media: HTMLVideoElement) => media.volume)).toBe(.28);
+  await activateVideo();
+  await videoPage.locator('video').evaluate((media: HTMLVideoElement) => { media.volume = .19; });
+  await expect.poll(() => other.locator('video').evaluate((media: HTMLVideoElement) => media.volume)).toBe(.19);
+  await other.close();
+  await videoPage.goto('https://www.bilibili.com/');
+  await videoPage.evaluate(id => history.pushState({}, '', `/video/${id}/`), FIRST);
+  await expect.poll(volume).toBe(.63);
+  await videoPage.locator('video').evaluate((media: HTMLVideoElement) => { media.volume = .18; });
+  await expect(popup.locator('#normal-value')).toHaveText('18%');
+  await videoPage.reload();
+  await expect.poll(volume).toBe(.18);
 });

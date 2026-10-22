@@ -9,7 +9,16 @@ export default defineContentScript({
   matches: ['https://www.bilibili.com/*'],
   runAt: 'document_start',
   main(ctx) {
-    const controller = new VolumeController();
+    const controller = new VolumeController(value => {
+      const uid = creator?.uid;
+      const allowed = uid && settings.whitelist.find(item => item.uid === uid);
+      if (!allowed || !currentKey || getVideoRef(location.href)?.key !== currentKey || !settings.enabled) return;
+      allowed.volume = value;
+      const token = generation;
+      void browser.runtime.sendMessage({ type: 'record-creator-volume', uid: allowed.uid, volume: value, videoKey: currentKey })
+        .then(response => { unwrap(response); })
+        .catch(() => { if (ctx.isValid && token === generation) error = '音量保存失败，请重试'; });
+    });
     let settings = { ...DEFAULT_SETTINGS };
     let creator: Creator | null = null;
     let currentKey: string | null = null;
@@ -21,7 +30,11 @@ export default defineContentScript({
 
     const apply = () => {
       if (!currentKey || !settings.enabled) controller.restore();
-      else controller.setTarget(targetVolume(settings, creator));
+      else {
+        const uid = creator?.uid;
+        const allowed = !!uid && settings.whitelist.some(item => item.uid === uid);
+        controller.setTarget(targetVolume(settings, creator), `${generation}:${creator?.uid ?? 'unknown'}:${allowed}`, !!creator);
+      }
     };
     const resolve = async (url: string, token: number) => {
       resolving = true;
@@ -89,7 +102,7 @@ export default defineContentScript({
       scan();
       const customPlayer = !!document.querySelector('bwp-video') && !document.querySelector('video');
       sendResponse({
-        supported: !!currentKey, creator, resolving,
+        supported: !!currentKey, videoKey: currentKey, creator, resolving,
         error: customPlayer ? '此视频使用特殊播放器，暂未接管音量。请尝试在 B 站切换播放编码。' : error,
         volume: currentKey && !customPlayer ? targetVolume(settings, creator) : null,
       });
